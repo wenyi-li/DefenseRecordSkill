@@ -99,8 +99,9 @@ defense_records.md
 时间范围：hh:mm:ss - hh:mm:ss
 ```
 
-## 讯飞转写Key
-（如果未手动配置，skill会自动提示配置科大讯飞Key用于录音转文字）
+## 讯飞转写 Key
+
+> 如果未手动配置，skill 会自动提示配置科大讯飞 Key，用于录音转文字。
 
 完整答辩录音使用讯飞录音文件转写 / RAASR：
 
@@ -115,6 +116,8 @@ defense_records.md
 ```text
 https://www.xfyun.cn/doc/asr/ifasr_new/API.html
 ```
+
+可在 [讯飞开放平台录音文件转写服务页面](https://www.xfyun.cn/services/lfasr) 领取免费额度。
 
 配置凭据：
 
