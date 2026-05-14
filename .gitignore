@@ -3,6 +3,8 @@
 # Local test artifacts and private evaluation outputs
 answers/
 test/
+test-short/
+test-long/
 
 # Local agent-specific development copies.
 # The published source of truth is skills/defense-recorder/.
