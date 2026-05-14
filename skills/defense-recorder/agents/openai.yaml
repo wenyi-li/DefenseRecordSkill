@@ -1,0 +1,7 @@
+interface:
+  display_name: "答辩秘书"
+  short_description: "整理整场答辩录音为结构化问答纪要"
+  default_prompt: "使用 $defense-recorder 将这场完整学术答辩录音整理为按答辩人组织的 Markdown 答辩记录。"
+
+policy:
+  allow_implicit_invocation: true
