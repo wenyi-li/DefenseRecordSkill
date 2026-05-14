@@ -71,6 +71,13 @@ npx skills add wenyi-li/DefenseRecordSkill --skill defense-recorder
 defense_records.md
 ```
 
+长录音或多答辩人场景还会生成逐人中间文件，便于核查并避免长上下文压缩遗漏：
+
+```text
+qa_chunks/<序号>_<姓名>.md     # 当前答辩人的原始问答片段
+qa_extracts/<序号>_<姓名>.md   # 当前答辩人的问答/建议抽取结果
+```
+
 每位答辩人的记录包含：
 
 - 答辩顺序和姓名
@@ -88,7 +95,6 @@ defense_records.md
 ```text
 问：...
 答：...
-时间范围：hh:mm:ss - hh:mm:ss
 ```
 
 仅建议记录格式：
@@ -96,7 +102,6 @@ defense_records.md
 ```text
 建议：...
 回应：好的/感谢老师提醒/已记录
-时间范围：hh:mm:ss - hh:mm:ss
 ```
 
 ## 讯飞转写 Key

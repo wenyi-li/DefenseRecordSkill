@@ -5,6 +5,7 @@ answers/
 test/
 test-short/
 test-long/
+skills-lock.json
 
 # Local agent-specific development copies.
 # The published source of truth is skills/defense-recorder/.
@@ -18,3 +19,6 @@ test-long/
 **/.env
 **/.env.*
 !**/.env.example
+
+# release
+release-pr/
