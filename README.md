@@ -1,139 +1,40 @@
-# 答辩秘书 Skill
+# Defense Recorder
 
-将完整学术答辩会录音、转写文本或字幕文件整理为按答辩人组织的结构化答辩记录，包含陈述概述、评委问答、术语修正和低置信度说明。
+Defense Recorder 是一个用于整理学术答辩记录的 Agent Skill。它可以将完整答辩会录音、视频、转写文本或字幕文件整理为按答辩人组织的结构化 Markdown 记录，包含陈述概述、评委问答、评委建议、术语修正和低置信度说明。
 
-这是一个通用 Agent Skill，遵循 `SKILL.md` 格式，可通过 `npx skills add` 安装到 Claude Code、Cursor、Codex、OpenCode 等支持 Agent Skills 的工具中。
-
-## 一键安装
-
-发布到 GitHub 后，其他人可以用下面的命令安装：
+## 安装
 
 ```bash
-npx skills add <你的用户名>/DefenseRecordSkill --skill defense-recorder
+npx skills add wenyi-li/DefenseRecordSkill --skill defense-recorder
 ```
 
-指定安装到某些工具：
+## 快速使用
 
-```bash
-npx skills add <你的用户名>/DefenseRecordSkill \
-  --skill defense-recorder \
-  -a claude-code \
-  -a cursor \
-  -a codex
-```
-
-全局安装并跳过交互确认：
-
-```bash
-npx skills add <你的用户名>/DefenseRecordSkill \
-  --skill defense-recorder \
-  -g \
-  -a claude-code \
-  -a cursor \
-  -a codex \
-  -y
-```
-
-也可以直接安装 skill 子目录：
-
-```bash
-npx skills add https://github.com/<你的用户名>/DefenseRecordSkill/tree/main/skills/defense-recorder
-```
-
-安装后重启对应 Agent 工具，或按该工具的说明重新加载 skills。
-
-## 发布结构
-
-仓库中用于发布的唯一 skill 源目录是：
-
-```text
-skills/defense-recorder/
-```
-
-不要上传本地测试和私密文件：
-
-- `answers/`
-- `test/`
-- `.env`
-- `.agents/`
-- `.cursor/`
-
-`.agents/` 和 `.cursor/` 可以作为本地开发/调试副本，但不作为发布源。发布前用下面命令确认待提交文件：
-
-```bash
-git status --short
-git ls-files --others --exclude-standard
-```
-
-默认场景是：
-
-```text
-一份录音 = 一场包含多位答辩人的完整答辩会
-```
-
-除非用户明确说明，否则不要把整份录音当作单个答辩人的答辩。
-
-## 功能
-
-- 调用讯飞录音文件转写 / RAASR API 转写音频或视频。
-- 将整场答辩会切分为多个答辩人场次。
-- 为每位答辩人整理陈述概述、评委问答和评委建议。
-- 只客观记录问题、回答和时间范围，不评价回答是否充分、是否正面或是否完整。
-- 根据当前答辩人的材料修正明确的 ASR 术语错误。
-- 对说话人不确定、边界模糊、问答配对不清等内容添加低置信度说明。
-
-## 使用方式
+提供答辩录音或已有转写文本，然后要求 Agent 使用 `defense-recorder` 整理记录：
 
 ```text
 @defense_meeting.m4a
-使用答辩秘书 skill，整理这场答辩会的问答记录。
+使用 defense-recorder 整理这场答辩会的问答记录。
 ```
 
-也可以同时提供辅助材料：
+建议同时提供答辩顺序、答辩人名单、PPT、论文摘要或学院模板，以提高姓名、题目、术语和场次边界的准确性：
 
 ```text
 @defense_meeting.m4a
 @答辩顺序表.xlsx
 @答辩人名单.pdf
 @答辩PPT文件夹
-使用答辩秘书 skill，整理这场答辩会的问答记录。
+使用 defense-recorder 整理这场答辩会的问答记录。
 ```
 
-## 讯飞转写凭据
 
-完整答辩录音使用讯飞录音文件转写 / RAASR：
+## 功能
 
-- 上传接口：`https://raasr.xfyun.cn/v2/api/upload`
-- 凭据变量：`XFYUN_APP_ID` 和 `XFYUN_SECRET_KEY`
-- `XFYUN_SECRET_KEY` 必须是 RAASR 服务页面的 `SecretKey`
-
-不要把 spark_zh_iat 中英识别大模型的 `APIKey` 或 `APISecret` 填到 `XFYUN_SECRET_KEY`。spark_zh_iat 是 WebSocket 流式接口，主要面向最长 60 秒的短音频；答辩录音通常需要长文件转写、时间戳和可选角色分离。
-
-如果还没有 `.env`，请先参考讯飞官方文档开通服务并获取 APPID 与 SecretKey：
-
-```text
-https://www.xfyun.cn/doc/asr/ifasr_new/API.html
-```
-
-推荐运行配置脚本生成 `defense-recorder/.env`：
-
-```bash
-python3 .agents/skills/defense-recorder/scripts/setup_xfyun_env.py
-```
-
-转写脚本会自动从以下位置读取凭据：
-
-- 环境变量 `XFYUN_APP_ID` / `XFYUN_SECRET_KEY`
-- 当前工作目录的 `.env`
-- 媒体文件所在目录的 `.env`
-- skill 目录的 `.env`
-
-也可以手动设置环境变量：
-
-```bash
-export XFYUN_APP_ID="你的讯飞 APPID"
-export XFYUN_SECRET_KEY="你的讯飞录音文件转写 RAASR SecretKey"
-```
+- 调用讯飞录音文件转写 / RAASR API 转写音频或视频。
+- 将整场答辩会切分为多个答辩人场次。
+- 为每位答辩人整理陈述概述、评委问答和评委建议。
+- 根据当前答辩人的材料修正明确的 ASR 术语错误。
+- 对说话人不确定、场次边界模糊、问答配对不清等内容添加低置信度说明。
 
 ## 输入
 
@@ -164,13 +65,13 @@ export XFYUN_SECRET_KEY="你的讯飞录音文件转写 RAASR SecretKey"
 
 ## 输出
 
-默认输出文件：
+默认输出文件为：
 
 ```text
 defense_records.md
 ```
 
-每位答辩人记录包含：
+每位答辩人的记录包含：
 
 - 答辩顺序和姓名
 - 时间范围
@@ -182,14 +83,84 @@ defense_records.md
 - 术语修正说明
 - 低置信度片段
 
-## 当前限制
+问答记录格式：
 
-- 当前 skill 内置了讯飞音频转写脚本，但没有内置 PPT、XLSX、PDF 的统一抽取脚本。
-- Codex 可以在具体运行环境中尝试读取辅助材料，但稳定性取决于本机工具和 Python 库。
-- 如果需要跨 Codex、Cursor、Claude Code 稳定使用，建议后续增加 `scripts/extract_supporting_materials.py`，将 PPT/XLSX/PDF/CSV/TXT 统一抽取为 `supporting_materials.json`。
+```text
+问：...
+答：...
+时间范围：hh:mm:ss - hh:mm:ss
+```
 
-## 注意事项
+仅建议记录格式：
 
+```text
+建议：...
+回应：好的/感谢老师提醒/已记录
+时间范围：hh:mm:ss - hh:mm:ss
+```
+
+## 讯飞转写Key
+（如果未手动配置，skill会自动提示配置科大讯飞Key用于录音转文字）
+
+完整答辩录音使用讯飞录音文件转写 / RAASR：
+
+- 上传接口：`https://raasr.xfyun.cn/v2/api/upload`
+- 凭据变量：`XFYUN_APP_ID` 和 `XFYUN_SECRET_KEY`
+- `XFYUN_SECRET_KEY` 必须是 RAASR 服务页面的 `SecretKey`
+
+不要把 spark_zh_iat 中英识别大模型的 `APIKey` 或 `APISecret` 填到 `XFYUN_SECRET_KEY`。spark_zh_iat 是 WebSocket 流式接口，主要面向最长 60 秒的短音频；答辩录音通常需要长文件转写、时间戳和可选角色分离。
+
+请先参考讯飞官方文档开通服务并获取 APPID 与 SecretKey：
+
+```text
+https://www.xfyun.cn/doc/asr/ifasr_new/API.html
+```
+
+配置凭据：
+
+```bash
+python3 scripts/setup_xfyun_env.py
+```
+
+也可以手动设置环境变量：
+
+```bash
+export XFYUN_APP_ID="你的讯飞 APPID"
+export XFYUN_SECRET_KEY="你的讯飞录音文件转写 RAASR SecretKey"
+```
+
+转写脚本会自动从以下位置读取凭据：
+
+- 环境变量 `XFYUN_APP_ID` / `XFYUN_SECRET_KEY`
+- 当前工作目录的 `.env`
+- 媒体文件所在目录的 `.env`
+- skill 目录的 `.env`
+
+## 工作原则
+
+- 保持每位答辩人的内容相互隔离，不混用相邻场次的问题、回答或术语。
+- 不编造答辩人姓名、论文题目、评委问题、回答、时间戳或结论。
+- 无法识别姓名时，使用 `未知答辩人 1`、`未知答辩人 2` 等。
+- 无法识别论文题目时，写 `论文题目：未识别`。
+- 对不确定内容添加低置信度说明，不强行确定。
+- 不把全局 `SPEAKER_ID` 直接绑定为答辩人；说话人角色必须在每位答辩人的场次内推断。
 - 不生成官方答辩决议、通过/不通过判断或主观评价。
-- 不确定内容应进入低置信度说明，不要强行确定。
-- 不要把真实讯飞密钥提交到仓库。
+
+## 仓库结构
+
+```text
+skills/defense-recorder/
+├── SKILL.md
+├── agents/
+├── examples/
+├── knowledge/
+├── prompts/
+├── references/
+├── scripts/
+└── templates/
+```
+
+## 隐私与合规
+
+答辩录音和辅助材料可能包含个人信息。
+不要将真实讯飞密钥、私人答辩录音、学生材料或未授权的输出记录提交到公开仓库。
