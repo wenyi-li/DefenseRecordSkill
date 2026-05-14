@@ -5,7 +5,7 @@ Defense Recorder 是一个用于整理学术答辩记录的 Agent Skill。它可
 ## 安装
 
 ```bash
-npx skills add wenyi-li/DefenseRecordSkill --skill defense-recorder
+npx skills add wenyi-li/DefenseRecordSkill
 ```
 
 ## 快速使用
