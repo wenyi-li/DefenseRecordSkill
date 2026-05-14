@@ -32,7 +32,7 @@ allowed-tools: Read, Write, Edit, Bash
 - 概括回答时删除口头填充词和寒暄，但保留含义、局限和承诺后续补充的内容。
 - `答：` 和 `回应：` 后直接写内容，不要加 `答辩人说明`、`答辩人表示`、`答辩人解释说`、`答辩人认为`、`该同学表示` 等转述主语或引导语。
 - 不要评价答辩人回答是否充分、是否正面或是否完整；只客观记录问题、回答和建议。
-- 最终输出中，时间范围只出现在每位答辩人章节开头的基本信息处；`评委问答` 和 `评委建议` 中不要逐条输出 `时间范围：...`。
+- 最终输出中，时间范围只出现在每位答辩人章节开头的基本信息处；`评委问答` 和 `评委建议` 中不要逐条输出 `时间范围：...`。需要核查逐条来源时，使用 `qa_chunks/` 中的逐人原始文件。
 - 不要把评委建议强行转成问答。如果评委只提出格式、写作、实验或修改建议，而答辩人只是确认收到，应记录在 `评委建议` 下，不要写成 `问/答`。
 
 ## 工作流程
@@ -52,10 +52,10 @@ allowed-tools: Read, Write, Edit, Bash
 
 5. 使用 [`prompts/02_meeting_segmentation.md`](prompts/02_meeting_segmentation.md) 将整场会议切分为答辩人场次。
 6. 使用 [`prompts/03_candidate_session_split.md`](prompts/03_candidate_session_split.md) 将每位答辩人的场次拆分为陈述、问答和过渡片段。
-7. 在问答抽取前，先将每位答辩人的 `qa` 片段原文写入 `qa_chunk.md`，作为核查用中间文件。`qa_chunk.md` 必须按答辩人分节，节内保持 `transcript_output/transcript.md` 的原始行格式，例如 `[00:10:36.000 - 00:10:41.200] 段落-3: ...`，不要改写成最终记录格式。
-8. 使用 [`prompts/04_qa_extraction.md`](prompts/04_qa_extraction.md) 按答辩人抽取问答记录。长录音或多答辩人场景下，必须逐位、逐 `qa` 片段抽取，并在生成前检查每个评委发起点是否都对应 `问：` 或 `建议：`；不要从整场全文直接压缩生成问答。
+7. 在问答抽取前，先将每位答辩人的 `qa` 片段原文写入 `qa_chunks/` 文件夹，作为核查用中间文件。每位答辩人必须单独一个 Markdown 文件，例如 `qa_chunks/12_闫涛.md`；文件内保持 `transcript_output/transcript.md` 的原始行格式，例如 `[00:10:36.000 - 00:10:41.200] 段落-3: ...`，不要改写成最终记录格式。可额外生成 `qa_chunks/index.md` 汇总文件名、答辩人、时间范围和片段行数，但不要只生成一个长 `qa_chunk.md`。
+8. 使用 [`prompts/04_qa_extraction.md`](prompts/04_qa_extraction.md) 按答辩人抽取问答记录。长录音或多答辩人场景下，必须一次只读取一个 `qa_chunks/<序号>_<姓名>.md` 文件，并将该答辩人的抽取结果写入 `qa_extracts/<序号>_<姓名>.md`；不同答辩人的抽取可以并行交给多个 agent，但每个 agent 只能处理自己负责的单个答辩人文件。生成前检查每个评委发起点是否都对应 `问：` 或 `建议：`；不要从整场全文直接压缩生成问答。
 9. 按照 [`prompts/05_term_correction.md`](prompts/05_term_correction.md)，仅使用 `global_terms + 当前答辩人术语` 修正明确的 ASR 术语错误。
-10. 使用 [`prompts/06_final_minutes.md`](prompts/06_final_minutes.md) 和 [`templates/defense_minutes_template.md`](templates/defense_minutes_template.md) 生成最终 Markdown。最终汇总时不得因篇幅压缩省略某位答辩人问答片段开头或结尾的独立问题/建议。
+10. 使用 [`prompts/06_final_minutes.md`](prompts/06_final_minutes.md) 和 [`templates/defense_minutes_template.md`](templates/defense_minutes_template.md) 生成最终 Markdown。最终汇总必须读取逐人 `qa_extracts/` 文件，不得从完整转写或单个长 QA 文件重新压缩；不得因篇幅压缩省略某位答辩人问答片段开头、中段或结尾的独立问题/建议。
 11. 用户后续提出修正时，使用 [`prompts/07_correction_handler.md`](prompts/07_correction_handler.md) 只更新受影响的部分。
 
 ## 音频转写工具
@@ -120,7 +120,7 @@ python3 scripts/transcribe_audio.py AUDIO_OR_VIDEO_FILE \
 
 其中 `回应：` 后必须直接写回应内容，禁止写成 `回应：答辩人表示...`。
 
-最终 `评委问答` 与 `评委建议` 部分不得出现逐条 `时间范围：hh:mm:ss - hh:mm:ss`；需要核查逐条来源时，使用 `qa_chunk.md` 中保留的原始时间戳。
+最终 `评委问答` 与 `评委建议` 部分不得出现逐条 `时间范围：hh:mm:ss - hh:mm:ss`；需要核查逐条来源时，使用 `qa_chunks/` 中保留的逐人原始时间戳。
 
 ## 边界信号
 
